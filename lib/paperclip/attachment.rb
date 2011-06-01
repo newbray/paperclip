@@ -396,7 +396,7 @@ module Paperclip
 
     def dimensions style = default_style
       return [nil,nil] unless image?
-      return @dimensions[style] unless @dimensions[style].empty?
+      return @dimensions[style] unless @dimensions[style].nil?
       w, h = instance_read(:width), instance_read(:height)
       
       if @styles[style].nil? or (@styles[style].nil? || @styles[style].geometry.nil?)
