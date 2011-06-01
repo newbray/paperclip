@@ -223,6 +223,20 @@ module Paperclip
       time && time.to_f.to_i
     end
 
+    # If <attachment> is an image and <attachment>_width attribute is present, returns the original width 
+    # of the image when no argument is specified or the calculated new width of the image when passed a 
+    # valid style. Returns nil otherwise
+    def width style = default_style
+      dimensions(style)[0]
+    end
+
+    # If <attachment> is an image and <attachment>_height attribute is present, returns the original width 
+    # of the image when no argument is specified or the calculated new height of the image when passed a 
+    # valid style. Returns nil otherwise
+    def height style = default_style
+      dimensions(style)[1]
+    end
+
     # The time zone to use for timestamp interpolation.  Using the default
     # time zone ensures that results are consistent across all threads.
     def time_zone
