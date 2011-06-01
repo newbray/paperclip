@@ -112,6 +112,23 @@ module Paperclip
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size.to_i)
       instance_write(:fingerprint, generate_fingerprint(@queued_for_write[:original]))
+
+      if image? and
+         @instance.class.column_names.include?("#{name}_width") and 
+         @instance.class.column_names.include?("#{name}_height")
+
+         begin
+           geometry = Paperclip::Geometry.from_file(@queued_for_write[:original])
+           instance_write(:width, geometry.width.to_i)
+           instance_write(:height, geometry.height.to_i)
+         rescue NotIdentifiedByImageMagickError => e
+           log("Couldn't get dimensions for #{name}: #{e}")
+         end
+      else
+        instance_write(:width, nil)
+        instance_write(:height, nil)
+      end
+
     ensure
       uploaded_file.close if close_uploaded_file
     end
@@ -267,6 +284,11 @@ module Paperclip
     # Returns true if a file has been assigned.
     def file?
       !original_filename.blank?
+    end
+
+    # Determines whether or not the attachment is an image based on the content_type
+    def image?
+      !content_type.nil? and !!content_type.match(%r{\Aimage/})
     end
     
     alias :present? :file?
