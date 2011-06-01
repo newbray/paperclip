@@ -61,6 +61,7 @@ module Paperclip
       @dimensions            = {}
       @dirty                 = false
 
+      normalize_style_definition
       initialize_storage
     end
 
@@ -346,6 +347,35 @@ module Paperclip
       file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
     end
 
+    def normalize_style_definition #:nodoc:
+      @styles.each do |name, args|
+        unless args.is_a? Hash
+          dimensions, format = [args, nil].flatten[0..1]
+          format             = nil if format.blank?
+          @styles[name]      = {
+            :processors      => @processors,
+            :geometry        => dimensions,
+            :format          => format,
+            :whiny           => @whiny,
+            :convert_options => extra_options_for(name)
+          }
+        else
+          @styles[name] = {
+            :processors => @processors,
+            :whiny => @whiny,
+            :convert_options => extra_options_for(name)
+          }.merge(@styles[name])
+        end
+      end
+    end
+
+    def solidify_style_definitions #:nodoc:
+      @styles.each do |name, args|
+        @styles[name][:geometry] = @styles[name][:geometry].call(instance) if @styles[name][:geometry].respond_to?(:call)
+        @styles[name][:processors] = @styles[name][:processors].call(instance) if @styles[name][:processors].respond_to?(:call)
+      end
+    end
+
     def initialize_storage #:nodoc:
       storage_class_name = @storage.to_s.capitalize
       begin
@@ -367,6 +397,7 @@ module Paperclip
 
     def post_process(*style_args) #:nodoc:
       return if @queued_for_write[:original].nil?
+      solidify_style_definitions
       instance.run_paperclip_callbacks(:post_process) do
         instance.run_paperclip_callbacks(:"#{name}_post_process") do
           post_process_styles(*style_args)
