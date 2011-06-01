@@ -58,6 +58,7 @@ module Paperclip
       @queued_for_delete     = []
       @queued_for_write      = {}
       @errors                = {}
+      @dimensions            = {}
       @dirty                 = false
 
       initialize_storage
