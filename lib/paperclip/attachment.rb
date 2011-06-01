@@ -393,6 +393,18 @@ module Paperclip
       Paperclip::Interpolations.interpolate(pattern, self, style_name)
     end
 
+    def dimensions style = default_style
+      return [nil,nil] unless image?
+      return @dimensions[style] unless @dimensions[style].nil?
+      w, h = instance_read(:width), instance_read(:height)
+      
+      if @styles[style].nil? or @styles[style][:geometry].nil?
+        @dimensions[style] = [w,h]
+      else
+        @dimensions[style] = Geometry.parse(@styles[style][:geometry]).new_dimensions_for(w, h)      
+      end
+    end
+
     def queue_existing_for_delete #:nodoc:
       return unless file?
       @queued_for_delete += [:original, *styles.keys].uniq.map do |style|
