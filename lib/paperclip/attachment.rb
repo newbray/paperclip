@@ -399,10 +399,10 @@ module Paperclip
       return @dimensions[style] unless @dimensions[style].nil?
       w, h = instance_read(:width), instance_read(:height)
       
-      if @styles[style].nil? or (@styles[style].nil? || @styles[style].geometry.nil?)
+      if @styles[style].nil? or @styles[style][:geometry].nil?
         @dimensions[style] = [w,h]
       else
-        @dimensions[style] = Geometry.parse(@styles[style].geometry).new_dimensions_for(w, h)      
+        @dimensions[style] = Geometry.parse(@styles[style][:geometry]).new_dimensions_for(w, h)      
       end
     end
 
