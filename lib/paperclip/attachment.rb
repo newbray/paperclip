@@ -304,7 +304,7 @@ module Paperclip
 
     # Determines whether or not the attachment is an image based on the content_type
     def image?
-      !content_type.nil? and !!content_type.match(%r{\Aimage/})
+      !content_type.nil? and !!content_type.match(%r{image/.*})
     end
     
     alias :present? :file?
